@@ -515,7 +515,57 @@ let batalhaTeste = (personagem1, personagem2) => {
     console.groupEnd();
 }
 
-let excadrill = new Personagem("Excadrill", [ataques["Earthquake"], ataques["Iron Head"], ataques["Swords Dance"], ataques["Rapid Spin"]], [tipos["Metal"], tipos["Terrestre"]], 110, 135, 60, 50, 65, 88);
-let gengar = new Personagem("Gengar", [ataques["Shadow Ball"], ataques["Sludge Bomb"], ataques["Substitute"], ataques["Focus Blast"]], [tipos["Fantasma"], tipos["Venenoso"]], 100, 65, 60, 130, 75, 110);
+//POKEMONS//
+let excadrill = new Personagem("Excadrill",
+    [ataques["Earthquake"], ataques["Iron Head"], ataques["Swords Dance"], ataques["Rapid Spin"]],
+    [tipos["Metal"], tipos["Terrestre"]],
+    110, 135, 60, 50, 65, 88);
+
+let gengar = new Personagem("Gengar",
+    [ataques["Shadow Ball"], ataques["Sludge Bomb"], ataques["Substitute"], ataques["Focus Blast"]],
+    [tipos["Fantasma"], tipos["Venenoso"]],
+    100, 65, 60, 130, 75, 110);
+
+let lucario = new Personagem("Lucario",
+    [ataques],
+    [tipos["Metal"], tipos["Lutador"]],
+    70, 110, 70, 115, 70, 90);
+
+let heracroos = new Personagem("Heracross",
+    [ataques],
+    [tipos["Lutador"], tipos["Inseto"]],
+    80, 125, 75, 40, 95, 85);
+
+let hydreigon = new Personagem("Hydreigon",
+    [ataques],
+    [tipos["Dragão"], tipos["Trevas"]],
+    92, 105, 90, 125, 90, 98);
+
+let rayquaza = new Personagem("Rayquaza",
+    [ataques],
+    [tipos["Dragão"], tipos["Voador"]],
+    105, 150, 90, 150, 90, 95);
+
+let lugia = new Personagem("Lugia",
+    [ataques],
+    [tipos["Voador"], tipos["Psiquico"]],
+    106, 90, 130, 90, 154, 110);
+
+let hooh = new Personagem("Ho-oh",
+    [ataques],
+    [tipos["Fogo"], tipos["Voador"]],
+    106, 130, 90, 110, 154, 90);
+
+let kyurem = new Personagem("Kyurem",
+    [ataques],
+    [tipos["Dragão"], tipos["Gelo"]],
+    125, 130, 90, 130, 90, 95);
+
+let nihilego = new Personagem("Nihilego",
+    [ataques],
+    [tipos["Pedra"], tipos["Venenoso"]],
+    109, 53, 47, 127, 131, 103);
+
+//ALIENS//
 
 batalhaTeste(excadrill, gengar);
