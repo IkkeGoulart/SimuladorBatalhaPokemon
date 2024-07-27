@@ -106,21 +106,21 @@ class Personagem {
         }
 
         switch (ataque.efeito.tipo) {
-            case 'Envenenar':
+            case 'Causar condicao':
                 if ((Math.random() * 101) < ataque.efeito.chance) {
-                    alvo.condicao.push(condicoes.unicas.envenenado);
+                    alvo.condicao.push(ataque.efeito.condicao.nome);
                 }
                 break;
 
-            case 'Aumentar Ataque':
-                this.atk *= ataque.efeito.valor;
-                break;
-
-            //taunt
-            case 'Hesitar':
-                if ((Math.random() * 101) < ataque.efeito.chance) {
-                    alvo.condicao.push(condicoes.acumulativas.hesitado);
-                }
+            case 'Modificar atributo':
+                ataque.efeito.atributo.forEach(atributo => {
+                    if (ataque.efeito.alvo === 'oponente') {
+                        alvo.atributo *= ataque.efeito.valor;
+                    } else {
+                        this.atributo *= ataque.efeito.valor;
+                    }
+                });
+                
                 break;
 
             default:
@@ -149,7 +149,6 @@ class Personagem {
 
             console.log(escolha);
             if (escolha < 1 || escolha > this.ataques.length) {
-                console.log("Entrou no if")
                 alert("Opção inválida. Tente novamente.");
                 escolha = null;
             }
@@ -308,6 +307,54 @@ let tipos = {
     }
 }
 
+let condicoes = {
+    unicas: {
+        envenenado: {
+            nome: 'envenenado'
+        },
+
+        paralisado: {
+            nome: 'paralisado'
+        },
+
+        queimado: {
+            nome: 'queimado'
+        },
+
+        congelado: {
+            nome: 'congelado'
+        },
+
+        dormindo: {
+            nome: 'dormindo'
+        },
+
+        //fainted
+        caido: {
+            nome: 'caido'
+        }
+    },
+
+    acumulativas: {
+        confuso: {
+            nome: 'confuso'
+        },
+
+        //efeito do taunt
+        provocado: {
+            nome: 'provocado'
+        },
+
+        hesitado: {
+            nome: 'hesitado'
+        },
+
+        substitute: {
+            nome: 'substitute'
+        }
+    }
+}
+
 let ataques = {
     'Sludge Bomb': {
         nome: 'Sludge Bomb',
@@ -316,9 +363,11 @@ let ataques = {
         pp: 10,
         tipo: tipos['Venenoso'],
         categoria: 'Especial',
+        prioridade: 0,
         efeito: {
-            tipo: 'Envenenar',
-            chance: 30
+            tipo: 'Causar condicao', //pode causar poison
+            chance: 30,
+            condicao: condicoes.unicas.envenenado,
         }
 
     },
@@ -330,10 +379,13 @@ let ataques = {
         pp: 15,
         tipo: tipos['Fantasma'],
         categoria: 'Especial',
+        prioridade: 0,
         efeito: {
-            tipo: 'Diminuir defEspecial',
-            chance: 20,
-            valor: -1.5
+            tipo: 'Modificar atributo', //diminuir defEsp do oponente em 1 estágio
+            chance: 100,
+            atributo: 'defEspecial',
+            valor: 0.5,
+            alvo: 'oponente'
         }
     },
 
@@ -343,7 +395,8 @@ let ataques = {
         acuracia: 100,
         pp: 10,
         tipo: tipos['Terrestre'],
-        categoria: 'Fisico'
+        categoria: 'Fisico',
+        prioridade: 0
     },
 
     'Iron Head': {
@@ -353,9 +406,11 @@ let ataques = {
         pp: 15,
         tipo: tipos['Metal'],
         categoria: 'Fisico',
+        prioridade: 0,
         efeito: {
-            tipo: 'Hesitar',
-            chance: 30
+            tipo: 'Causar condicao', //pode não atacar
+            chance: 30,
+            condicao: condicoes.acumulativas.hesitado
         }
     },
 
@@ -366,9 +421,12 @@ let ataques = {
         pp: 20,
         tipo: tipos['Normal'],
         categoria: 'Status',
+        prioridade: 0,
         efeito: {
-            tipo: 'Aumentar ataque',
-            valor: 2
+            tipo: 'Modificar atributo', //aumentar atk próprio em 2 estágios
+            atributo: 'atk',
+            valor: 2,
+            alvo: 'proprio'
         }
     },
 
@@ -377,9 +435,11 @@ let ataques = {
         poder: 20,
         acuracia: 100,
         pp: 40,
+        tipo: tipos['Normal'],
         categoria: 'Fisico',
+        prioridade: 0,
         efeito: {
-            tipo: 'Limpar campo'
+            tipo: 'Limpar campo' //tira leech seed, spikes e afins
         }
     },
 
@@ -388,11 +448,13 @@ let ataques = {
         poder: 0,
         acuracia: 100,
         pp: 20,
+        tipo: tipos['Trevas'],
         categoria: 'Status',
+        prioridade: 0,
         efeito: {
-            tipo: 'Causar condicao',
+            tipo: 'Causar condicao', //causa taunt
             chance: 100,
-            condicao: condicoes.acumulativas.hesitado
+            condicao: condicoes.acumulativas.provocado
         }
     },
 
@@ -401,11 +463,13 @@ let ataques = {
         poder: 0,
         acuracia: 100,
         pp: 10,
+        tipo: tipos['Normal'],
         categoria: 'Status',
+        prioridade: 0,
         efeito: {
-            tipo: 'substitute',
+            tipo: 'Causar condicao',
             chance: 100,
-            condicao: condicoes.acumulativas.substitue
+            condicao: condicoes.acumulativas.substitute
         }
     },
 
@@ -414,63 +478,153 @@ let ataques = {
         poder: 120,
         acuracia: 70,
         pp: 5,
+        tipo: tipos['Lutador'],
         categoria: 'Especial',
+        prioridade: 0,
         efeito: {
-            tipo: 'Diminuir defEspecial',
+            tipo: 'Modificar atributo', //Diminuir defEspecial do oponente em 1 estágio
+            atributo: 'defEspecial',
             chance: 10,
-            valor: -1.5
-        }
-    }
-
-
-}
-
-let condicoes = {
-    unicas: {
-        envenenado: {
-
-        },
-
-        paralisado: {
-
-        },
-
-        queimado: {
-
-        },
-
-        congelado: {
-
-        },
-
-        dormindo: {
-
-        },
-
-        //fainted
-        caido: {
-
+            valor: 0.5,
+            alvo: 'oponente'
         }
     },
 
-    acumulativas: {
-        confuso: {
+    'Close Combat': {
+        nome: 'Close Combat',
+        poder: 120,
+        acuracia: 100,
+        pp: 5,
+        tipo: tipos['Lutador'],
+        categoria: 'Fisico',
+        prioridade: 0,
+        efeito: {
+            tipo: 'Modificar atributo', //Diminuir defEspecial e def próprio em 1 estágio cada
+            atributo: ['defEspecial', 'def'],
+            valor: 0.5,
+            alvo: 'proprio'
+        }
+    },
 
-        },
+    'Extreme Speed': {
+        nome: 'Extreme Speed',
+        poder: 80,
+        acuracia: 100,
+        pp: 5,
+        tipo: tipos['Normal'],
+        categoria: 'Fisico',
+        prioridade: 2
+    },
 
-        //efeito do taunt
-        provocado: {
+    'Meteor Mash': {
+        nome: 'Meteor Mash',
+        poder: 90,
+        acuracia: 90,
+        pp: 10,
+        tipo: tipos['Metal'],
+        categoria: 'Fisico',
+        prioridade: 0,
+        efeito: {
+            tipo: 'Modificar atributos', //Aumentar atk próprio em 1 estágio
+            atributo: 'atk',
+            chance: 20,
+            valor: 1.5,
+            alvo: 'proprio'
+        }
+    },
 
-        },
+    'Facade': {
+        nome: 'Facade', //poder dobra se estiver com condicao unica; burn não corta o dano
+        poder: 70,
+        acuracia: 100,
+        pp: 20,
+        tipo: tipos['Normal'],
+        categoria: 'Fisico',
+        prioridade: 0,
+    },
 
-        hesitado: {
+    'Trailblaze': {
+        nome: 'Trailblaze',
+        poder: 50,
+        acuracia: 100,
+        pp: 20,
+        tipo: tipos['Planta'],
+        categoria: 'Fisico',
+        prioridade: 0,
+        efeito: {
+            tipo: 'Modificar atributos', //aumenta a velocidade própria em 1 estágio
+            atributo: 'velocidade',
+            chance: 100,
+            valor: 1.5,
+            alvo: 'proprio'
+        }
+    },
 
-        },
+    'Nasty Plot': {
+        nome: 'Nasty Plot',
+        poder: 0,
+        acuracia: 100,
+        pp: 20,
+        tipo: tipos['Trevas'],
+        categoria: 'Status',
+        prioridade: 0,
+        efeito: {
+            tipo: 'Modificar atributos', //aumenta o atkEspecial próprio em 2 estágios
+            atributo: 'atkEspecial',
+            chance: 100,
+            valor: 2,
+            alvo: 'proprio'
+        }
+    },
 
-        substitue: {
+    'Dark Pulse': {
+        nome: 'Dark Pulse',
+        poder: 80,
+        acuracia: 100,
+        pp: 15,
+        tipo: tipos['Trevas'],
+        categoria: 'Especial',
+        prioridade: 0,
+        efeito: {
+            tipo: 'Causar condicao', //Poode dar flinch
+            chance: 20,
+            condicao: condicoes.acumulativas.hesitado
+        }
+    },
 
+    'Flash Cannon': {
+        nome: 'Flash Cannon',
+        poder: 80,
+        acuracia: 100,
+        pp: 10,
+        tipo: tipos['Metal'],
+        categoria: 'Especial',
+        prioridade: 0,
+        efeito: {
+            tipo: 'Modificar atributos', //Pode reduzir defEspecial do oponente em 1 estágio
+            atributo: 'defEspecial',
+            chance: 10,
+            valor: 0.5,
+            alvo: 'oponente'
+        }
+    },
+
+    'Thunder Wave': {
+        nome: 'Thunder Wave',
+        poder: 0,
+        acuracia: 90,
+        pp: 20,
+        tipo: tipos['Eletrico'],
+        categoria: 'Status',
+        prioridade: 0,
+        efeito: {
+            tipo: 'Causar condicao',
+            chance: 100,
+            condicao: condicoes.unicas.paralisado
         }
     }
+
+
 }
 
 let ordenarPorVelocidade = (personagens) => {
@@ -502,6 +656,7 @@ let batalhaTeste = (personagem1, personagem2) => {
 
         console.log(`${personagem1.nome} - Vida Atual: ${personagem1.vidaAtual}/ Vida Máxima: ${personagem1.vidaMaxima}`);
         console.log(`${personagem2.nome} - Vida Atual: ${personagem2.vidaAtual}/ Vida Máxima: ${personagem2.vidaMaxima}`);
+        console.log(personagem1.defEspecial)
         console.groupEnd();
         turno++;
     }
@@ -527,45 +682,95 @@ let gengar = new Personagem("Gengar",
     100, 65, 60, 130, 75, 110);
 
 let lucario = new Personagem("Lucario",
-    [ataques],
+    [ataques["Close Combat"], ataques["Extreme Speed"], ataques["Meteor Mash"], ataques["Swords Dance"]],
     [tipos["Metal"], tipos["Lutador"]],
     70, 110, 70, 115, 70, 90);
 
-let heracroos = new Personagem("Heracross",
-    [ataques],
+let heracross = new Personagem("Heracross",
+    [ataques["Close Combat"], ataques["Facade"], ataques["Swords Dance"], ataques["Trailblaze"]],
     [tipos["Lutador"], tipos["Inseto"]],
     80, 125, 75, 40, 95, 85);
 
 let hydreigon = new Personagem("Hydreigon",
-    [ataques],
+    [ataques["Dark Pulse"], ataques['Flash Cannon'], ataques['Nasty Plot'], ataques['Thunder Wave']],
     [tipos["Dragão"], tipos["Trevas"]],
     92, 105, 90, 125, 90, 98);
 
-let rayquaza = new Personagem("Rayquaza",
-    [ataques],
-    [tipos["Dragão"], tipos["Voador"]],
-    105, 150, 90, 150, 90, 95);
 
-let lugia = new Personagem("Lugia",
-    [ataques],
-    [tipos["Voador"], tipos["Psiquico"]],
-    106, 90, 130, 90, 154, 110);
+//a fazer o resto
+//*let rayquaza = new Personagem("Rayquaza",
+//     [ataques],
+//     [tipos["Dragão"], tipos["Voador"]],
+//     105, 150, 90, 150, 90, 95);
 
-let hooh = new Personagem("Ho-oh",
-    [ataques],
-    [tipos["Fogo"], tipos["Voador"]],
-    106, 130, 90, 110, 154, 90);
+// let lugia = new Personagem("Lugia",
+//     [ataques],
+//     [tipos["Voador"], tipos["Psiquico"]],
+//     106, 90, 130, 90, 154, 110);
 
-let kyurem = new Personagem("Kyurem",
-    [ataques],
-    [tipos["Dragão"], tipos["Gelo"]],
-    125, 130, 90, 130, 90, 95);
+// let hooh = new Personagem("Ho-oh",
+//     [ataques],
+//     [tipos["Fogo"], tipos["Voador"]],
+//     106, 130, 90, 110, 154, 90);
 
-let nihilego = new Personagem("Nihilego",
-    [ataques],
-    [tipos["Pedra"], tipos["Venenoso"]],
-    109, 53, 47, 127, 131, 103);
+// let kyurem = new Personagem("Kyurem",
+//     [ataques],
+//     [tipos["Dragão"], tipos["Gelo"]],
+//     125, 130, 90, 130, 90, 95);
 
-//ALIENS//
+// let nihilego = new Personagem("Nihilego",
+//     [ataques],
+//     [tipos["Pedra"], tipos["Venenoso"]],
+//     109, 53, 47, 127, 131, 103);
 
-batalhaTeste(excadrill, gengar);
+// //ALIENS//
+// let quatroBracos = new Personagem("4 Braços",
+//     [ataques],
+//     [tipos["Lutador"]],
+//     [atributos]);
+
+// let arraiajato = new Personagem("Arraia Jato",
+//     [ataques],
+//     [tipos["Eletrico"], tipos["Voador"]],
+//     [atributos]);
+
+// let ameacaaquatica = new Persongagem("Ameaça Aquática",
+//     [ataques],
+//     [tipos["Agua"], tipos["Metal"]],
+//     [atributos]);
+
+// let chama = new Personagem("Chama",
+//     [ataques],
+//     [tipos["Fogo"]],
+//     [atributos]);
+
+// let crashhopper = new Persongem("Crashhopper",
+//     [ataques],
+//     [tipos["Inseto"]],
+//     [atributos]);
+
+// let friagem = new Personagem("Friagem",
+//     [ataques],
+//     [tipos["Fantasma"], tipos["Gelo"]]);
+
+// let glutao = new Personagem("Glutão",
+//     [ataques],
+//     [tipos["Venenoso"], tipos["Normal"]],
+//     [atributos]);
+
+// let gravattack = new Personagem("Gravattack",
+//     [ataques],
+//     [tipos["Psiquico"], tipos["Pedra"]],
+//     [atributos]);
+
+// let peskydust = new Personagem("Pesky Dust",
+//     [ataques],
+//     [tipos["Fada"], tipos["Voador"]],
+//     [atributos]);
+
+// let tartagira = new Personagem("Tartagira",
+//     [ataques],
+//     [tipos["Agua"], tipos["Agua"]],
+//     [atributos]); 
+
+batalhaTeste(hydreigon, gengar);
